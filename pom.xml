@@ -20,6 +20,8 @@
 		<module>mall-order</module>
 		<module>mall-product</module>
 		<module>mall-warehouse</module>
+		<module>renren-fast</module>
+		<module>renren-fast-vue</module>
 	</modules>
 
 
