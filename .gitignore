@@ -34,6 +34,10 @@ logs/
 # Spring Boot
 spring-pid
 
+# Archives
+*.zip
+*.tar.gz
+
 # Terraform
 Terraform/.terraform/
 Terraform/.terraform.lock.hcl
