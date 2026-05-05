@@ -45,3 +45,5 @@ Terraform/terraform.tfstate
 Terraform/terraform.tfstate.backup
 Terraform/terraform.tfvars
 Terraform/*.tfplan
+.claude/settings.local.json
+query

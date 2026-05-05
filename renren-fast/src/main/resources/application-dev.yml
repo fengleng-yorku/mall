@@ -3,9 +3,9 @@ spring:
         type: com.alibaba.druid.pool.DruidDataSource
         druid:
             driver-class-name: com.mysql.cj.jdbc.Driver
-            url: jdbc:mysql://localhost:3306/mall_admin?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false
-            username: root
-            password: 0504
+            url: jdbc:mysql://127.0.0.1:3306/mall_admin?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+            username: mall_user
+            password: StrongPassword123!
             initial-size: 10
             max-active: 100
             min-idle: 10
