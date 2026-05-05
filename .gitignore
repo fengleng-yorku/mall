@@ -1,0 +1,43 @@
+# Maven build output
+target/
+*.class
+*.jar
+*.war
+*.ear
+
+# Maven wrapper cache
+.mvn/wrapper/maven-wrapper.jar
+
+# IDE - IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# IDE - VS Code
+.vscode/
+!.vscode/NEWLY_CREATED_BY_SPRING_INITIALIZR
+
+# IDE - Eclipse
+.classpath
+.project
+.settings/
+*.launch
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Spring Boot
+spring-pid
+
+# Terraform
+Terraform/.terraform/
+Terraform/.terraform.lock.hcl
+Terraform/terraform.tfstate
+Terraform/terraform.tfstate.backup
+Terraform/terraform.tfvars
+Terraform/*.tfplan
