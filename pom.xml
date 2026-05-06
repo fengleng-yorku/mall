@@ -8,20 +8,21 @@
 		<version>4.0.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.feng.mall.coupon</groupId>
+	<groupId>com.feng.mall</groupId>
 	<artifactId>mall</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>mall</name>
 	<description/>
 	<packaging>pom</packaging>
 	<modules>
+		<module>mall-common</module>
 		<module>mall-coupon</module>
 		<module>mall-member</module>
 		<module>mall-order</module>
 		<module>mall-product</module>
 		<module>mall-warehouse</module>
 		<module>renren-fast</module>
-		<module>renren-fast-vue</module>
+		<module>renren-generator</module>
 	</modules>
 
 
