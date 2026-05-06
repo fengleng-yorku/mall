@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:mysql://127.0.0.1:3306/mall-sms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://127.0.0.1:3306/mall_sms?useUnicode=true&characterEncoding=UTF-8&serverTimezone=UTC&useSSL=false&allowPublicKeyRetrieval=true
     username: mall_user
     password: StrongPassword123!
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -12,4 +12,4 @@ mybatis-plus:
       id-type: auto
 
 server:
-  port: 7000
+  port: 7001

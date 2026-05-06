@@ -1,4 +1,4 @@
-﻿package com.feng.mall.order.entity;
+package com.feng.mall.order.entity;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;

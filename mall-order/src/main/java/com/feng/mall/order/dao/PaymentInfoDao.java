@@ -1,4 +1,4 @@
-﻿package com.feng.mall.order.dao;
+package com.feng.mall.order.dao;
 
 import com.feng.mall.order.entity.PaymentInfoEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;

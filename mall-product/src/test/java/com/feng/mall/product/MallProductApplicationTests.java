@@ -19,14 +19,14 @@ public class MallProductApplicationTests {
 	@Test
 	void contextLoads() {
 
-		//BrandEntity brandEntity = new BrandEntity();
+		BrandEntity brandEntity = new BrandEntity();
 
-		// brandEntity.setBrandId(1L);
+		 //brandEntity.setBrandId(1L);
 		// brandEntity.setDescript("canada brand");
 
-		// brandEntity.setName("Lululemon");
+		 brandEntity.setName("Lululemon");
 
-		// brandService.save(brandEntity);
+		 brandService.save(brandEntity);
 
 		// brandService.updateById(brandEntity);
 
