@@ -16,6 +16,8 @@ import com.feng.mall.member.service.MemberService;
 import com.feng.common.utils.PageUtils;
 import com.feng.common.utils.R;
 
+import com.feng.mall.member.feign.CouponFeignService;
+
 
 
 /**
@@ -30,6 +32,18 @@ import com.feng.common.utils.R;
 public class MemberController {
     @Autowired
     private MemberService memberService;
+
+    @Autowired
+    private CouponFeignService couponFeignService;
+
+    @RequestMapping("/coupons")
+    public R test() {
+        MemberEntity memberEntity = new MemberEntity();
+        memberEntity.setNickname("张三");
+        R memberCoupon = couponFeignService.memberCoupons();
+
+        return R.ok().put("member", memberEntity).put("coupons", memberCoupon.get("coupons"));
+    }
 
     /**
      * 列表
