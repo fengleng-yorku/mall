@@ -5,9 +5,6 @@ import com.mongodb.MongoClientOptions;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoDatabase;
-import io.renren.factory.MongoDBCollectionFactory;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Conditional;
@@ -31,7 +28,6 @@ public class MongoConfig {
     private boolean auth;
     private String source;
 
-
     @Bean
     @Conditional(MongoCondition.class)
     private MongoClient getMongoClient() {
@@ -52,8 +48,6 @@ public class MongoConfig {
     public MongoDatabase getDataBase() {
         return getMongoClient().getDatabase(dataBase);
     }
-
-
 
     public MongoConfig setHost(String host) {
         this.host = host;

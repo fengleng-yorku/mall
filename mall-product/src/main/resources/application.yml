@@ -4,18 +4,23 @@ spring:
     username: mall_user
     password: StrongPassword123!
     driver-class-name: com.mysql.cj.jdbc.Driver
+  application:
+    name: mall-product
   cloud:
     nacos:
       discovery:
         server-addr: 127.0.0.1:8848
-  application:
-    name: mall-product
+      # config:
+      #   server-addr: 127.0.0.1:8848
+      #   namespace: 1fe74957-a75b-4c03-baf5-9437ba01c240
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml
   global-config:
     db-config:
       id-type: auto
+      logic-delete-value: 1
+      logic-not-delete-value: 0
 
 server:
-    port: 10000
+  port: 10000

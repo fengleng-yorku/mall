@@ -1,6 +1,7 @@
 package com.feng.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -36,10 +37,11 @@ public class CategoryController {
      */
     @RequestMapping("/list")
     //@RequiresPermissions("product:category:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = categoryService.queryPage(params);
+    public R list(){
 
-        return R.ok().put("page", page);
+        List<CategoryEntity> categories = categoryService.listWithTree();
+        
+        return R.ok().put("categories", categories);
     }
 
 
@@ -82,7 +84,10 @@ public class CategoryController {
     @RequestMapping("/delete")
     //@RequiresPermissions("product:category:delete")
     public R delete(@RequestBody Long[] catIds){
-		categoryService.removeByIds(Arrays.asList(catIds));
+		//categoryService.removeByIds(Arrays.asList(catIds));
+
+        //检查当前删除的菜单是否被其他地方引用
+        categoryService.removeCategoryByIds(Arrays.asList(catIds));
 
         return R.ok();
     }
