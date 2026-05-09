@@ -18,7 +18,11 @@
       </el-form-item>
       <el-form-item label="品牌Logo" prop="logo">
         <div class="logo-uploader">
-          <img v-if="previewUrl || dataForm.logo" :src="previewUrl || dataForm.logo" class="logo-preview" />
+          <img
+            v-if="previewUrl || dataForm.logo"
+            :src="previewUrl || dataForm.logo"
+            class="logo-preview"
+          />
           <div v-else class="logo-placeholder">
             <i class="el-icon-plus" />
           </div>
@@ -51,151 +55,188 @@
         />
       </el-form-item>
       <el-form-item label="检索首字母" prop="firstLetter">
-        <el-input v-model="dataForm.firstLetter" placeholder="请输入检索首字母" />
+        <el-input
+          v-model="dataForm.firstLetter"
+          placeholder="请输入检索首字母"
+        />
       </el-form-item>
       <el-form-item label="排序" prop="sort">
-        <el-input-number v-model="dataForm.sort" :min="0" controls-position="right" />
+        <el-input-number
+          v-model="dataForm.sort"
+          :min="0"
+          controls-position="right"
+        />
       </el-form-item>
     </el-form>
     <span slot="footer">
       <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" :disabled="uploading" @click="dataFormSubmit()">确定</el-button>
+      <el-button type="primary" :disabled="uploading" @click="dataFormSubmit()"
+        >确定</el-button
+      >
     </span>
   </el-dialog>
 </template>
 
 <script>
-  import { uploadToS3, S3_BASE } from '@/composables/useS3Upload'
+import { uploadToS3, S3_BASE } from "@/composables/useS3Upload";
 
-  export default {  
-    data () {
-      return {
-        visible: false,
-        uploading: false,
-        progress: 0,
-        uploadError: '',
-        pendingFile: null,
-        previewUrl: '',
-        dataForm: {
-          brandId: 0,
-          name: '',
-          logo: '',
-          descript: '',
-          showStatus: 1,
-          firstLetter: '',
-          sort: 0
-        },
-        dataRule: {
-          name: [
-            { required: true, message: '品牌名称不能为空', trigger: 'blur' }
-          ],
-          logo: [
-            { required: true, message: '请上传品牌Logo', trigger: 'change' }
-          ],
-          descript: [
-            { required: true, message: '品牌描述不能为空', trigger: 'blur' }
-          ],
-          firstLetter: [
-            { required: true, message: '检索首字母不能为空', trigger: 'blur' }
-          ],
-          sort: [
-            { required: true, message: '排序不能为空', trigger: 'blur' }
-          ]
+export default {
+  data() {
+    return {
+      visible: false,
+      uploading: false,
+      progress: 0,
+      uploadError: "",
+      pendingFile: null,
+      previewUrl: "",
+      dataForm: {
+        brandId: 0,
+        name: "",
+        logo: "",
+        descript: "",
+        showStatus: 1,
+        firstLetter: "",
+        sort: 0,
+      },
+      dataRule: {
+        name: [
+          { required: true, message: "品牌名称不能为空", trigger: "blur" },
+        ],
+        logo: [
+          { required: true, message: "请上传品牌Logo", trigger: "change" },
+        ],
+        descript: [
+          { required: true, message: "品牌描述不能为空", trigger: "blur" },
+        ],
+        firstLetter: [
+          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                callback(new Error("检索首字母不能为空"));
+              } else if (!/^[a-zA-Z]$/.test(value)) {
+                callback(new Error("检索首字母必须是单个字母"));
+              } else {
+                callback();
+              }
+            },
+          },
+        ],
+        sort: [          {
+            validator: (rule, value, callback) => {
+              if (!value) {
+                callback(new Error("排序不能为空"));
+              } else if (!Number.isInteger(value)) {
+                callback(new Error("排序必须是整数"));
+              } else {
+                callback();
+              }
+            },
+          },],
+      },
+    };
+  },
+  methods: {
+    init(id) {
+      this.dataForm.brandId = id || 0;
+      this.visible = true;
+      this.$nextTick(() => {
+        this.$refs["dataForm"].resetFields();
+        this.pendingFile = null;
+        this.previewUrl = "";
+        this.uploadError = "";
+        if (this.dataForm.brandId) {
+          this.$http({
+            url: this.$http.adornUrl(
+              `/product/brand/info/${this.dataForm.brandId}`
+            ),
+            method: "get",
+            params: this.$http.adornParams(),
+          }).then(({ data }) => {
+            if (data && data.code === 0) {
+              this.dataForm.name = data.brand.name;
+              this.dataForm.logo = data.brand.logo;
+              this.dataForm.descript = data.brand.descript;
+              this.dataForm.showStatus = data.brand.showStatus;
+              this.dataForm.firstLetter = data.brand.firstLetter;
+              this.dataForm.sort = data.brand.sort;
+            }
+          });
         }
+      });
+    },
+    handleFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      this.pendingFile = file;
+      this.previewUrl = URL.createObjectURL(file);
+      this.dataForm.logo = this.previewUrl;
+      this.uploadError = "";
+    },
+    async doUpload() {
+      if (!this.pendingFile) return;
+      const ext = this.pendingFile.name.split(".").pop();
+      const renamedFile = new File(
+        [this.pendingFile],
+        `${this.dataForm.name}.${ext}`,
+        { type: this.pendingFile.type }
+      );
+      this.uploading = true;
+      this.progress = 0;
+      try {
+        const s3Key = await uploadToS3(renamedFile, (p) => {
+          this.progress = p;
+        });
+        this.dataForm.logo = S3_BASE + s3Key;
+        this.pendingFile = null;
+      } catch (err) {
+        this.uploadError = "上传失败：" + err.message;
+        throw err;
+      } finally {
+        this.uploading = false;
       }
     },
-    methods: {
-      init (id) {
-        this.dataForm.brandId = id || 0
-        this.visible = true
-        this.$nextTick(() => {
-          this.$refs['dataForm'].resetFields()
-          this.pendingFile = null
-          this.previewUrl = ''
-          this.uploadError = ''
-          if (this.dataForm.brandId) {
-            this.$http({
-              url: this.$http.adornUrl(`/product/brand/info/${this.dataForm.brandId}`),
-              method: 'get',
-              params: this.$http.adornParams()
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.dataForm.name = data.brand.name
-                this.dataForm.logo = data.brand.logo
-                this.dataForm.descript = data.brand.descript
-                this.dataForm.showStatus = data.brand.showStatus
-                this.dataForm.firstLetter = data.brand.firstLetter
-                this.dataForm.sort = data.brand.sort
-              }
-            })
+    async dataFormSubmit() {
+      this.$refs["dataForm"].validate(async (valid) => {
+        if (valid) {
+          try {
+            await this.doUpload();
+          } catch (e) {
+            return;
           }
-        })
-      },
-      handleFile (e) {
-        const file = e.target.files[0]
-        if (!file) return
-        this.pendingFile = file
-        this.previewUrl = URL.createObjectURL(file)
-        this.dataForm.logo = this.previewUrl
-        this.uploadError = ''
-      },
-      async doUpload () {
-        if (!this.pendingFile) return
-        const ext = this.pendingFile.name.split('.').pop()
-        const renamedFile = new File([this.pendingFile], `${this.dataForm.name}.${ext}`, { type: this.pendingFile.type })
-        this.uploading = true
-        this.progress = 0
-        try {
-          const s3Key = await uploadToS3(renamedFile, (p) => { this.progress = p })
-          this.dataForm.logo = S3_BASE + s3Key
-          this.pendingFile = null
-        } catch (err) {
-          this.uploadError = '上传失败：' + err.message
-          throw err
-        } finally {
-          this.uploading = false
-        }
-      },
-      async dataFormSubmit () {
-        this.$refs['dataForm'].validate(async (valid) => {
-          if (valid) {
-            try {
-              await this.doUpload()
-            } catch (e) {
-              return
+          this.$http({
+            url: this.$http.adornUrl(
+              `/product/brand/${!this.dataForm.brandId ? "save" : "update"}`
+            ),
+            method: "post",
+            data: this.$http.adornData({
+              brandId: this.dataForm.brandId || undefined,
+              name: this.dataForm.name,
+              logo: this.dataForm.logo,
+              descript: this.dataForm.descript,
+              showStatus: this.dataForm.showStatus,
+              firstLetter: this.dataForm.firstLetter,
+              sort: this.dataForm.sort,
+            }),
+          }).then(({ data }) => {
+            if (data && data.code === 0) {
+              this.$message({
+                message: "操作成功",
+                type: "success",
+                duration: 1500,
+                onClose: () => {
+                  this.visible = false;
+                  this.$emit("refreshDataList");
+                },
+              });
+            } else {
+              this.$message.error(data.msg);
             }
-            this.$http({
-              url: this.$http.adornUrl(`/product/brand/${!this.dataForm.brandId ? 'save' : 'update'}`),
-              method: 'post',
-              data: this.$http.adornData({
-                'brandId': this.dataForm.brandId || undefined,
-                'name': this.dataForm.name,
-                'logo': this.dataForm.logo,
-                'descript': this.dataForm.descript,
-                'showStatus': this.dataForm.showStatus,
-                'firstLetter': this.dataForm.firstLetter,
-                'sort': this.dataForm.sort
-              })
-            }).then(({data}) => {
-              if (data && data.code === 0) {
-                this.$message({
-                  message: '操作成功',
-                  type: 'success',
-                  duration: 1500,
-                  onClose: () => {
-                    this.visible = false
-                    this.$emit('refreshDataList')
-                  }
-                })
-              } else {
-                this.$message.error(data.msg)
-              }
-            })
-          }
-        })
-      }
-    }
-  }
+          });
+        }
+      });
+    },
+  },
+};
 </script>
 
 <style scoped>

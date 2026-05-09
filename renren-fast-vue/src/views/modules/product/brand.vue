@@ -127,7 +127,7 @@
           <el-button
             type="text"
             size="small"
-            @click="deleteHandle(scope.row.brandId)"
+            @click="deleteHandle(scope.row.brandId,scope.row.name)"
             >删除</el-button
           >
         </template>
@@ -200,7 +200,7 @@ export default {
     },
     updatebrandstatus(row) {
       this.$http({
-        url: this.$http.adornUrl("/product/brand/update"),
+        url: this.$http.adornUrl("/product/brand/updateStatus"),
         method: "post",
         data: this.$http.adornData({
           brandId: row.brandId,
@@ -244,7 +244,7 @@ export default {
       });
     },
     // 删除
-    deleteHandle(id) {
+    deleteHandle(id, name) {
       var ids = id
         ? [id]
         : this.dataListSelections.map((item) => {
