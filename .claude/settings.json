@@ -3,7 +3,10 @@
     "allow": [
       "Read(//Users/rei/.dbclient/query/1777991506629@@127.0.0.1@3306@mall_pms/**)",
       "Bash(mvn install *)",
-      "Bash(rm /Users/rei/Desktop/work/mall/mall-third-party/src/main/java/com/feng/mall/thirdparty/Config/CorsConfig.java)"
+      "Bash(rm /Users/rei/Desktop/work/mall/mall-third-party/src/main/java/com/feng/mall/thirdparty/Config/CorsConfig.java)",
+      "Bash(jar tf *)",
+      "Read(//Users/rei/.m2/repository/com/baomidou/**)",
+      "Bash(xargs -I{} sh -c 'jar tf \"$1\" 2>/dev/null | grep -il \"paginationinner\" && echo \"$1\"' _ {})"
     ],
     "additionalDirectories": [
       "/Users/rei/Desktop/work/mall/mall-third-party/src/main/java/com/feng/mall/thirdparty/Config"

@@ -1,6 +1,7 @@
 package com.feng.mall.product.service.impl;
 
 import org.springframework.stereotype.Service;
+
 import java.util.Map;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -12,7 +13,6 @@ import com.feng.mall.product.dao.AttrGroupDao;
 import com.feng.mall.product.entity.AttrGroupEntity;
 import com.feng.mall.product.service.AttrGroupService;
 
-
 @Service("attrGroupService")
 public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEntity> implements AttrGroupService {
 
@@ -20,10 +20,35 @@ public class AttrGroupServiceImpl extends ServiceImpl<AttrGroupDao, AttrGroupEnt
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<AttrGroupEntity> page = this.page(
                 new Query<AttrGroupEntity>().getPage(params),
-                new QueryWrapper<AttrGroupEntity>()
-        );
+                new QueryWrapper<AttrGroupEntity>());
 
         return new PageUtils(page);
     }
+
+    @Override
+    public PageUtils queryPage(Map<String, Object> params, Long catelogId) {
+        if (catelogId == 0) {
+            IPage<AttrGroupEntity> page = this.page(
+                    new Query<AttrGroupEntity>().getPage(params),
+                    new QueryWrapper<AttrGroupEntity>());
+
+            return new PageUtils(page);
+        } else {
+            // select * from pms_attr_group where catelog_id = ? and (attr_group_id like
+            // %key% or attr_group_name like %key%)
+
+            QueryWrapper<AttrGroupEntity> wrapper = new QueryWrapper<AttrGroupEntity>().eq("catelog_id", catelogId);
+            if (params.get("key") != null) {
+                wrapper.and(q -> q.like("attr_group_id", params.get("key")).or().like("attr_group_name",
+                        params.get("key")));
+            }
+            IPage<AttrGroupEntity> page = this.page(
+                    new Query<AttrGroupEntity>().getPage(params),
+                    wrapper);
+
+            return new PageUtils(page);
+        }
+    }
+
 
 }
