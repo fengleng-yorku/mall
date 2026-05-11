@@ -23,12 +23,7 @@ export default {
     //这里存放数据
     return {
       catId: 0,
-      brands: [
-        {
-          label: "a",
-          value: 1
-        }
-      ],
+      brands: [],
       brandId: "",
       subscribe: null
     };
@@ -60,7 +55,7 @@ export default {
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
     //监听三级分类消息的变化
-    this.subscribe = PubSub.subscribe("catPath", (msg, val) => {
+    this.subscribe = PubSub.subscribe("catPath", (_msg, val) => {
       this.catId = val[val.length - 1];
       this.getCatBrands();
     });

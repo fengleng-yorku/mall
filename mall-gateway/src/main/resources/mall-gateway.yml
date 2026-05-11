@@ -1,7 +1,8 @@
 spring:
   cloud:
     gateway:
-      routes:
+      mvc:
+        routes:
         - id: product_route
           uri: lb://mall-product
           predicates:
