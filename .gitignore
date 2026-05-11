@@ -47,3 +47,4 @@ Terraform/terraform.tfvars
 Terraform/*.tfplan
 .claude/settings.local.json
 query
+renren-fast-vue/package-lock.json

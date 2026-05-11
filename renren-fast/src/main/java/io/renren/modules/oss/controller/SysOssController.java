@@ -15,9 +15,6 @@ import io.renren.common.utils.Constant;
 import io.renren.common.utils.PageUtils;
 import io.renren.common.utils.R;
 import io.renren.common.validator.ValidatorUtils;
-import io.renren.common.validator.group.AliyunGroup;
-import io.renren.common.validator.group.QcloudGroup;
-import io.renren.common.validator.group.QiniuGroup;
 import io.renren.modules.oss.cloud.CloudStorageConfig;
 import io.renren.modules.oss.cloud.OSSFactory;
 import io.renren.modules.oss.entity.SysOssEntity;
@@ -58,7 +55,6 @@ public class SysOssController {
 		return R.ok().put("page", page);
 	}
 
-
     /**
      * 云存储配置信息
      */
@@ -69,7 +65,6 @@ public class SysOssController {
 
         return R.ok().put("config", config);
     }
-
 
 	/**
 	 * 保存云存储配置信息
@@ -86,7 +81,6 @@ public class SysOssController {
 		return R.ok();
 	}
 	
-
 	/**
 	 * 上传文件
 	 */
@@ -109,7 +103,6 @@ public class SysOssController {
 
 		return R.ok().put("url", url);
 	}
-
 
 	/**
 	 * 删除

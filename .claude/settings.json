@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//Users/rei/.dbclient/query/1777991506629@@127.0.0.1@3306@mall_pms/**)",
+      "Bash(mvn install *)",
+      "Bash(rm /Users/rei/Desktop/work/mall/mall-third-party/src/main/java/com/feng/mall/thirdparty/Config/CorsConfig.java)",
+      "Bash(jar tf *)",
+      "Read(//Users/rei/.m2/repository/com/baomidou/**)",
+      "Bash(xargs -I{} sh -c 'jar tf \"$1\" 2>/dev/null | grep -il \"paginationinner\" && echo \"$1\"' _ {})",
+      "Bash(mysql -h 127.0.0.1 -P 3306 -u mall_user -pStrongPassword123! mall_pms -e ' *)",
+      "Bash(which mycli *)",
+      "Read(//usr/local/bin/**)",
+      "Bash(which mysql *)",
+      "Read(//opt/homebrew/bin/**)",
+      "Bash(jar xf *)",
+      "Bash(javap -p com/baomidou/mybatisplus/core/mapper/BaseMapper.class)",
+      "Bash(mvn test-compile *)"
+    ],
+    "additionalDirectories": [
+      "/Users/rei/Desktop/work/mall/mall-third-party/src/main/java/com/feng/mall/thirdparty/Config"
+    ]
+  }
+}
