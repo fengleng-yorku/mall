@@ -56,12 +56,13 @@
           <el-table-column prop="icon" header-align="center" align="center" label="图标"></el-table-column>
           <el-table-column prop="valueSelect" header-align="center" align="center" label="可选值">
             <template slot-scope="scope">
-              <el-tooltip placement="top">
+              <el-tooltip v-if="scope.row.valueSelect" placement="top">
                 <div slot="content">
                   <span v-for="(i,index) in scope.row.valueSelect.split(';')" :key="index">{{i}}<br/></span>
                 </div>
                 <el-tag>{{scope.row.valueSelect.split(";")[0]+" ..."}}</el-tag>
               </el-tooltip>
+              <span v-else>-</span>
             </template>
           </el-table-column>
           <el-table-column prop="enable" header-align="center" align="center" label="启用">

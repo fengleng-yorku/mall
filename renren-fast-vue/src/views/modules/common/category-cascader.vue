@@ -49,11 +49,14 @@ export default {
   },
   watch:{
     catelogPath(v){
+      this.paths = v;
+    },
+    // categorys 异步加载完成后，重新同步 paths，确保级联选择器能正确回显
+    categorys(){
       this.paths = this.catelogPath;
     },
     paths(v){
       this.$emit("update:catelogPath",v);
-      //还可以使用pubsub-js进行传值
       this.PubSub.publish("catPath",v);
     }
   },

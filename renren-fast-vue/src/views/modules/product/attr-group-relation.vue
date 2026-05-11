@@ -1,97 +1,124 @@
 <template>
   <div>
-    <el-dialog :close-on-click-modal="false" :visible.sync="visible" @closed="dialogClose">
-      <el-dialog width="40%" title="选择属性" :visible.sync="innerVisible" append-to-body>
-        <div>
-          <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
-            <el-form-item>
-              <el-input v-model="dataForm.key" placeholder="参数名" clearable></el-input>
-            </el-form-item>
-            <el-form-item>
-              <el-button @click="getDataList()">查询</el-button>
-            </el-form-item>
-          </el-form>
-          <el-table
-            :data="dataList"
-            border
-            v-loading="dataListLoading"
-            @selection-change="innerSelectionChangeHandle"
-            style="width: 100%;"
-          >
-            <el-table-column type="selection" header-align="center" align="center"></el-table-column>
-            <el-table-column prop="attrId" header-align="center" align="center" label="属性id"></el-table-column>
-            <el-table-column prop="attrName" header-align="center" align="center" label="属性名"></el-table-column>
-            <el-table-column prop="icon" header-align="center" align="center" label="属性图标"></el-table-column>
-            <el-table-column prop="valueSelect" header-align="center" align="center" label="可选值列表"></el-table-column>
-          </el-table>
-          <el-pagination
-            @size-change="sizeChangeHandle"
-            @current-change="currentChangeHandle"
-            :current-page="pageIndex"
-            :page-sizes="[10, 20, 50, 100]"
-            :page-size="pageSize"
-            :total="totalPage"
-            layout="total, sizes, prev, pager, next, jumper"
-          ></el-pagination>
-        </div>
+    <el-dialog
+      :close-on-click-modal="false"
+      :visible.sync="visible"
+      title="管理关联属性"
+      width="65%"
+      top="5vh"
+      @closed="dialogClose"
+    >
+      <!-- 选择属性内层弹框 -->
+      <el-dialog
+        width="50%"
+        title="选择属性"
+        :visible.sync="innerVisible"
+        append-to-body
+        top="8vh"
+      >
+        <el-form :inline="true" :model="dataForm" @keyup.enter.native="getDataList()">
+          <el-form-item>
+            <el-input
+              v-model="dataForm.key"
+              placeholder="搜索属性名"
+              clearable
+              prefix-icon="el-icon-search"
+            ></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" icon="el-icon-search" @click="getDataList()">查询</el-button>
+          </el-form-item>
+        </el-form>
+        <el-table
+          :data="dataList"
+          border
+          v-loading="dataListLoading"
+          @selection-change="innerSelectionChangeHandle"
+          style="width: 100%;"
+          empty-text="暂无可关联的属性"
+        >
+          <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
+          <el-table-column prop="attrId" header-align="center" align="center" label="属性ID" width="80"></el-table-column>
+          <el-table-column prop="attrName" header-align="center" align="center" label="属性名"></el-table-column>
+          <el-table-column
+            prop="valueSelect"
+            header-align="center"
+            align="center"
+            label="可选值列表"
+            show-overflow-tooltip
+          ></el-table-column>
+        </el-table>
+        <el-pagination
+          @size-change="sizeChangeHandle"
+          @current-change="currentChangeHandle"
+          :current-page="pageIndex"
+          :page-sizes="[10, 20, 50, 100]"
+          :page-size="pageSize"
+          :total="totalPage"
+          layout="total, sizes, prev, pager, next, jumper"
+          class="pagination"
+        ></el-pagination>
         <div slot="footer" class="dialog-footer">
           <el-button @click="innerVisible = false">取 消</el-button>
           <el-button type="primary" @click="submitAddRealtion">确认新增</el-button>
         </div>
       </el-dialog>
-      <el-row>
-        <el-col :span="24">
-          <el-button type="primary" @click="addRelation">新建关联</el-button>
-          <el-button
-            type="danger"
-            @click="batchDeleteRelation"
-            :disabled="dataListSelections.length <= 0"
-          >批量删除</el-button>
-          <!--  -->
-          <el-table
-            :data="relationAttrs"
-            style="width: 100%"
-            @selection-change="selectionChangeHandle"
-            border
-          >
-            <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
-            <el-table-column prop="attrId" label="#"></el-table-column>
-            <el-table-column prop="attrName" label="属性名"></el-table-column>
-            <el-table-column prop="valueSelect" label="可选值">
-              <template slot-scope="scope">
-                <el-tooltip placement="top">
-                  <div slot="content">
-                    <span v-for="(i,index) in scope.row.valueSelect.split(';')" :key="index">
-                      {{i}}
-                      <br />
-                    </span>
-                  </div>
-                  <el-tag>{{scope.row.valueSelect.split(";")[0]+" ..."}}</el-tag>
-                </el-tooltip>
-              </template>
-            </el-table-column>
-            <el-table-column fixed="right" header-align="center" align="center" label="操作">
-              <template slot-scope="scope">
-                <el-button type="text" size="small" @click="relationRemove(scope.row.attrId)">移除</el-button>
-              </template>
-            </el-table-column>
-          </el-table>
-        </el-col>
-      </el-row>
+
+      <!-- 工具栏 -->
+      <div class="relation-toolbar">
+        <el-button type="primary" icon="el-icon-plus" size="small" @click="addRelation">新建关联</el-button>
+        <el-button
+          type="danger"
+          icon="el-icon-delete"
+          size="small"
+          @click="batchDeleteRelation"
+          :disabled="dataListSelections.length <= 0"
+        >批量删除</el-button>
+      </div>
+
+      <!-- 已关联属性列表 -->
+      <el-table
+        :data="relationAttrs"
+        style="width: 100%"
+        @selection-change="selectionChangeHandle"
+        border
+        empty-text="暂无关联属性"
+      >
+        <el-table-column type="selection" header-align="center" align="center" width="50"></el-table-column>
+        <el-table-column prop="attrId" header-align="center" align="center" label="属性ID" width="80"></el-table-column>
+        <el-table-column prop="attrName" header-align="center" align="center" label="属性名"></el-table-column>
+        <el-table-column prop="valueSelect" header-align="center" align="center" label="可选值">
+          <template slot-scope="scope">
+            <template v-if="scope.row.valueSelect">
+              <el-tag
+                v-for="(item, index) in scope.row.valueSelect.split(';')"
+                :key="index"
+                size="small"
+                class="value-tag"
+              >{{ item }}</el-tag>
+            </template>
+            <span v-else class="empty-cell">-</span>
+          </template>
+        </el-table-column>
+        <el-table-column fixed="right" header-align="center" align="center" width="100" label="操作">
+          <template slot-scope="scope">
+            <el-button type="text" size="small" class="remove-btn" @click="relationRemove(scope.row.attrId)">移除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="visible = false">关 闭</el-button>
+      </div>
     </el-dialog>
   </div>
 </template>
 
 <script>
-//这里可以导入其他文件（比如：组件，工具js，第三方插件js，json文件，图片文件等等）
-//例如：import 《组件名称》 from '《组件路径》';
-
 export default {
-  //import引入的组件需要注入到对象中才能使用
   components: {},
   props: {},
   data() {
-    //这里存放数据
     return {
       attrGroupId: 0,
       visible: false,
@@ -109,11 +136,8 @@ export default {
       innerdataListSelections: []
     };
   },
-  //计算属性 类似于data概念
   computed: {},
-  //监控data中的数据变化
   watch: {},
-  //方法集合
   methods: {
     selectionChangeHandle(val) {
       this.dataListSelections = val;
@@ -125,11 +149,11 @@ export default {
       this.getDataList();
       this.innerVisible = true;
     },
-    batchDeleteRelation(val) {
-      let postData = [];
-      this.dataListSelections.forEach(item => {
-        postData.push({ attrId: item.attrId, attrGroupId: this.attrGroupId });
-      });
+    batchDeleteRelation() {
+      let postData = this.dataListSelections.map(item => ({
+        attrId: item.attrId,
+        attrGroupId: this.attrGroupId
+      }));
       this.$http({
         url: this.$http.adornUrl("/product/attrgroup/attr/relation/delete"),
         method: "post",
@@ -143,14 +167,12 @@ export default {
         }
       });
     },
-    //移除关联
     relationRemove(attrId) {
-      let data = [];
-      data.push({ attrId, attrGroupId: this.attrGroupId });
+      let postData = [{ attrId, attrGroupId: this.attrGroupId }];
       this.$http({
         url: this.$http.adornUrl("/product/attrgroup/attr/relation/delete"),
         method: "post",
-        data: this.$http.adornData(data, false)
+        data: this.$http.adornData(postData, false)
       }).then(({ data }) => {
         if (data.code == 0) {
           this.$message({ type: "success", message: "删除成功" });
@@ -162,13 +184,11 @@ export default {
     },
     submitAddRealtion() {
       this.innerVisible = false;
-      //准备数据
-      console.log("准备新增的数据", this.innerdataListSelections);
       if (this.innerdataListSelections.length > 0) {
-        let postData = [];
-        this.innerdataListSelections.forEach(item => {
-          postData.push({ attrId: item.attrId, attrGroupId: this.attrGroupId });
-        });
+        let postData = this.innerdataListSelections.map(item => ({
+          attrId: item.attrId,
+          attrGroupId: this.attrGroupId
+        }));
         this.$http({
           url: this.$http.adornUrl("/product/attrgroup/attr/relation"),
           method: "post",
@@ -180,16 +200,13 @@ export default {
           this.$emit("refreshData");
           this.init(this.attrGroupId);
         });
-      } else {
       }
     },
     init(id) {
       this.attrGroupId = id || 0;
       this.visible = true;
       this.$http({
-        url: this.$http.adornUrl(
-          "/product/attrgroup/" + this.attrGroupId + "/attr/relation"
-        ),
+        url: this.$http.adornUrl(`/product/attrgroup/${this.attrGroupId}/attr/relation`),
         method: "get",
         params: this.$http.adornParams({})
       }).then(({ data }) => {
@@ -197,15 +214,10 @@ export default {
       });
     },
     dialogClose() {},
-
-    //========
-    // 获取数据列表
     getDataList() {
       this.dataListLoading = true;
       this.$http({
-        url: this.$http.adornUrl(
-          "/product/attrgroup/" + this.attrGroupId + "/noattr/relation"
-        ),
+        url: this.$http.adornUrl(`/product/attrgroup/${this.attrGroupId}/attr/nonrelation`),
         method: "get",
         params: this.$http.adornParams({
           page: this.pageIndex,
@@ -214,8 +226,8 @@ export default {
         })
       }).then(({ data }) => {
         if (data && data.code === 0) {
-          this.dataList = data.page.list;
-          this.totalPage = data.page.totalCount;
+          this.dataList = data.data ? data.data.list : [];
+          this.totalPage = data.data ? data.data.totalCount : 0;
         } else {
           this.dataList = [];
           this.totalPage = 0;
@@ -223,13 +235,11 @@ export default {
         this.dataListLoading = false;
       });
     },
-    // 每页数
     sizeChangeHandle(val) {
       this.pageSize = val;
       this.pageIndex = 1;
       this.getDataList();
     },
-    // 当前页
     currentChangeHandle(val) {
       this.pageIndex = val;
       this.getDataList();
@@ -237,5 +247,30 @@ export default {
   }
 };
 </script>
-<style scoped>
+
+<style scoped>
+.relation-toolbar {
+  margin-bottom: 12px;
+}
+
+.pagination {
+  margin-top: 12px;
+  text-align: right;
+}
+
+.empty-cell {
+  color: #c0c4cc;
+}
+
+.remove-btn {
+  color: #f56c6c;
+}
+
+.remove-btn:hover {
+  color: #f78989;
+}
+
+.value-tag {
+  margin: 2px 3px;
+}
 </style>
