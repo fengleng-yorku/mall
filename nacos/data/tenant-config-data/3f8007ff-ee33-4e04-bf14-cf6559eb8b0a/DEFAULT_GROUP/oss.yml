@@ -1,0 +1,4 @@
+aws:
+  s3:
+    bucket: feng-mall-upload-picture
+    region: ca-central-1
