@@ -12,18 +12,22 @@ import com.feng.mall.product.dao.SpuInfoDescDao;
 import com.feng.mall.product.entity.SpuInfoDescEntity;
 import com.feng.mall.product.service.SpuInfoDescService;
 
-
 @Service("spuInfoDescService")
-public class SpuInfoDescServiceImpl extends ServiceImpl<SpuInfoDescDao, SpuInfoDescEntity> implements SpuInfoDescService {
+public class SpuInfoDescServiceImpl extends ServiceImpl<SpuInfoDescDao, SpuInfoDescEntity>
+        implements SpuInfoDescService {
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SpuInfoDescEntity> page = this.page(
                 new Query<SpuInfoDescEntity>().getPage(params),
-                new QueryWrapper<SpuInfoDescEntity>()
-        );
+                new QueryWrapper<SpuInfoDescEntity>());
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void saveSpuInfoDesc(SpuInfoDescEntity descEntity) {
+        this.baseMapper.insert(descEntity);
     }
 
 }

@@ -12,7 +12,6 @@ import com.feng.mall.product.dao.SkuInfoDao;
 import com.feng.mall.product.entity.SkuInfoEntity;
 import com.feng.mall.product.service.SkuInfoService;
 
-
 @Service("skuInfoService")
 public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> implements SkuInfoService {
 
@@ -20,10 +19,14 @@ public class SkuInfoServiceImpl extends ServiceImpl<SkuInfoDao, SkuInfoEntity> i
     public PageUtils queryPage(Map<String, Object> params) {
         IPage<SkuInfoEntity> page = this.page(
                 new Query<SkuInfoEntity>().getPage(params),
-                new QueryWrapper<SkuInfoEntity>()
-        );
+                new QueryWrapper<SkuInfoEntity>());
 
         return new PageUtils(page);
+    }
+
+    @Override
+    public void saveSkuInfo(SkuInfoEntity skuInfoEntity) {
+        this.baseMapper.insert(skuInfoEntity);
     }
 
 }
