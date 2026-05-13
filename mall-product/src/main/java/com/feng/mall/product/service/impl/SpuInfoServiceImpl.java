@@ -13,8 +13,11 @@ import java.util.stream.Collectors;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.feng.common.to.SkuReductionTo;
+import com.feng.common.to.SpuBoundTo;
 import com.feng.common.utils.PageUtils;
 import com.feng.common.utils.Query;
+import com.feng.common.utils.R;
 
 import com.feng.mall.product.dao.SpuInfoDao;
 import com.feng.mall.product.entity.ProductAttrValueEntity;
@@ -23,6 +26,7 @@ import com.feng.mall.product.entity.SkuInfoEntity;
 import com.feng.mall.product.entity.SkuSaleAttrValueEntity;
 import com.feng.mall.product.entity.SpuInfoDescEntity;
 import com.feng.mall.product.entity.SpuInfoEntity;
+import com.feng.mall.product.feign.CouponFeignService;
 import com.feng.mall.product.service.AttrService;
 import com.feng.mall.product.service.ProductAttrValueService;
 import com.feng.mall.product.service.SkuImagesService;
@@ -33,14 +37,13 @@ import com.feng.mall.product.service.SpuInfoDescService;
 import com.feng.mall.product.service.SpuInfoService;
 import com.feng.mall.product.vo.Attr;
 import com.feng.mall.product.vo.BaseAttrs;
+import com.feng.mall.product.vo.Bounds;
 import com.feng.mall.product.vo.Images;
 import com.feng.mall.product.vo.Skus;
 import com.feng.mall.product.vo.SpuSaveVo;
 
 @Service("spuInfoService")
 public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> implements SpuInfoService {
-
-    private final SkuInfoServiceImpl skuInfoServiceImpl;
 
     @Autowired
     SpuInfoDescService spuInfoDescService;
@@ -63,9 +66,8 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
     @Autowired
     SkuSaleAttrValueService saleAttrValueService;
 
-    SpuInfoServiceImpl(SkuInfoServiceImpl skuInfoServiceImpl) {
-        this.skuInfoServiceImpl = skuInfoServiceImpl;
-    }
+    @Autowired
+    CouponFeignService couponFeignService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -112,6 +114,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
             return valueEntity;
         }).collect(Collectors.toList());
         valueService.saveProductAttrValue(collection);
+
+        // 5. save SPU bonus/bounds info -> sms_spu_bounds
+        Bounds bounds = vo.getBounds();
+        SpuBoundTo spuBoundTo = new SpuBoundTo();
+        BeanUtils.copyProperties(bounds, spuBoundTo);
+        spuBoundTo.setSpuId(spuInfoEntity.getId());
+
+        R r = couponFeignService.saveSpubounds(spuBoundTo);
+        if (r.getCode() != 0) {
+            log.error("远程保存spu积分信息失败");
+        }
+
         // 5. save SKUs for this SPU
         // 5.1 save basic SKU info -> pms_sku_info
         List<Skus> skus = vo.getSkus();
@@ -139,13 +153,15 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 Long skuId = skuInfoEntity.getSkuId();
 
                 // 5.2 save SKU images -> pms_sku_images
-                List<SkuImagesEntity> imagesEntities = skuImages.stream().map(img -> {
-                    SkuImagesEntity imageEntity = new SkuImagesEntity();
-                    imageEntity.setSkuId(skuId);
-                    imageEntity.setImgUrl(img.getImgUrl());
-                    imageEntity.setDefaultImg(img.getDefaultImg());
-                    return imageEntity;
-                }).collect(Collectors.toList());
+                List<SkuImagesEntity> imagesEntities = skuImages.stream()
+                        .filter(img -> img.getImgUrl() != null && !img.getImgUrl().isEmpty())
+                        .map(img -> {
+                            SkuImagesEntity imageEntity = new SkuImagesEntity();
+                            imageEntity.setSkuId(skuId);
+                            imageEntity.setImgUrl(img.getImgUrl());
+                            imageEntity.setDefaultImg(img.getDefaultImg());
+                            return imageEntity;
+                        }).collect(Collectors.toList());
                 skuImageService.saveBatch(imagesEntities);
 
                 // 5.3 save SKU sale attributes -> pms_sku_sale_attr_value
@@ -158,11 +174,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
                 }).collect(Collectors.toList());
                 saleAttrValueService.saveBatch(saleAttrCollection);
 
+                // 5.4 save SKU discount info -> sms_sku_ladder, sms_sku_full_reduction,
+                // sms_member_price
+                SkuReductionTo skuReductionTo = new SkuReductionTo();
+                BeanUtils.copyProperties(sku, skuReductionTo);
+                skuReductionTo.setSkuId(skuId);
+                R r1 = couponFeignService.saveSkuReduction(skuReductionTo);
+                if (r1.getCode() != 0) {
+                    log.error("远程保存sku优惠信息失败");
+                }
+
             });
         }
-        // 5.4 save SKU discount info -> sms_sku_ladder, sms_sku_full_reduction,
-        // sms_member_price
-        // 6. save SPU bonus/bounds info -> sms_spu_bounds
 
     }
 
