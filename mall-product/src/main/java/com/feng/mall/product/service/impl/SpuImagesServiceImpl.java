@@ -35,7 +35,7 @@ public class SpuImagesServiceImpl extends ServiceImpl<SpuImagesDao, SpuImagesEnt
         } else {
             List<SpuImagesEntity> collection = images.stream().map(img -> {
                 SpuImagesEntity imagesEntity = new SpuImagesEntity();
-                imagesEntity.setId(id);
+                imagesEntity.setSpuId(id);
                 imagesEntity.setImgUrl(img);
 
                 return imagesEntity;

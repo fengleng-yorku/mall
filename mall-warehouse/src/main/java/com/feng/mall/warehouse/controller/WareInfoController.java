@@ -26,7 +26,7 @@ import com.feng.common.utils.R;
  * @date 2026-05-06 11:55:53
  */
 @RestController
-@RequestMapping("warehouse/wareinfo")
+@RequestMapping("ware/wareinfo")
 public class WareInfoController {
     @Autowired
     private WareInfoService wareInfoService;

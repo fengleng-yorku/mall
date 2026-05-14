@@ -50,7 +50,7 @@ export default {
         status: "",
         key: "",
         brandId: 0,
-        catelogId: 0
+        catalogId: 0
       },
       catPathSub: null,
       brandIdSub: null
@@ -73,7 +73,7 @@ export default {
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {
     this.catPathSub = PubSub.subscribe("catPath", (msg, val) => {
-      this.dataForm.catelogId = val[val.length-1];
+      this.dataForm.catalogId = val[val.length-1];
     });
     this.brandIdSub = PubSub.subscribe("brandId", (msg, val) => {
       this.dataForm.brandId = val;
