@@ -60,6 +60,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         AttrEntity attrEntity = new AttrEntity();
         BeanUtils.copyProperties(attr, attrEntity);
         this.save(attrEntity);
+        // Sale-type attrs are not bound to any group, so skip the relation insert
         if (attr.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_SALE.getCode()) {
             return;
         }
@@ -148,10 +149,12 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         BeanUtils.copyProperties(attrVo, attrEntity);
         this.updateById(attrEntity);
 
+        // Only base-type attrs maintain a group relation; sale-type attrs skip this block
         if (attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()) {
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
             relationEntity.setAttrGroupId(attrVo.getAttrGroupId());
             relationEntity.setAttrId(attrVo.getAttrId());
+            // Upsert: update the existing relation if present, otherwise insert a new one
             Long count = attrAttrgroupRelationDao
                     .selectCount(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_id", attrVo.getAttrId()));
             if (count > 0) {
@@ -169,11 +172,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 .selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrGroupId));
         List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId)
                 .collect(Collectors.toList());
+        // Return null early so the controller can distinguish "no relations" from an empty list
         if (attrIds == null || attrIds.size() == 0) {
             return null;
         }
-        List<AttrEntity> attrEntities = this.listByIds(attrIds);
-        return attrEntities;
+        return this.listByIds(attrIds);
     }
 
     @Override
@@ -193,7 +196,7 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             BeanUtils.copyProperties(item, relationEntity);
             return relationEntity;
         }).collect(Collectors.toList());
-
+        // Custom mapper method deletes by (attr_id, attr_group_id) pairs in one batch SQL
         attrAttrgroupRelationDao.deleteBatchRelation(relationEntities);
     }
 

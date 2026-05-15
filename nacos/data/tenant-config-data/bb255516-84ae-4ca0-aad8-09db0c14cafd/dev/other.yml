@@ -1,0 +1,15 @@
+spring:
+  config:
+    import: nacos:${spring.application.name}.properties
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+      config:
+        server-addr: 127.0.0.1:8848
+        namespace: bb255516-84ae-4ca0-aad8-09db0c14cafd
+        group: dev
+  application:
+    name: mall-coupon
+server:
+  port: 7001

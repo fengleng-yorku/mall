@@ -14,7 +14,16 @@
       "Read(//opt/homebrew/bin/**)",
       "Bash(jar xf *)",
       "Bash(javap -p com/baomidou/mybatisplus/core/mapper/BaseMapper.class)",
-      "Bash(mvn test-compile *)"
+      "Bash(mvn test-compile *)",
+      "Bash(curl -s -o /dev/null -w '%{http_code}' -X POST http://localhost:88/api/product/spuinfo/save -H 'Content-Type: application/json' -d '{\"spuName\":\"test\"}')",
+      "Bash(curl -s -X POST http://localhost:88/api/product/spuinfo/save -H 'Content-Type: application/json' -d '{ *)",
+      "Bash(/opt/homebrew/Cellar/mysql-client/9.6.0/bin/mysql -u mall_user -pStrongPassword123! -h 127.0.0.1 mall_wms -e ' *)",
+      "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/purchasedetail\"\\)|@RequestMapping\\(\"ware/purchasedetail\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/PurchaseDetailController.java)",
+      "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/purchase\"\\)|@RequestMapping\\(\"ware/purchase\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/PurchaseController.java)",
+      "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/wareordertaskdetail\"\\)|@RequestMapping\\(\"ware/wareordertaskdetail\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/WareOrderTaskDetailController.java)",
+      "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/wareordertask\"\\)|@RequestMapping\\(\"ware/wareordertask\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/WareOrderTaskController.java)",
+      "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/waresku\"\\)|@RequestMapping\\(\"ware/waresku\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/WareSkuController.java)",
+      "Bash(mysql -u mall_user -pStrongPassword123! mall_wms -e ' *)"
     ],
     "additionalDirectories": [
       "/Users/rei/Desktop/work/mall/mall-third-party/src/main/java/com/feng/mall/thirdparty/Config"

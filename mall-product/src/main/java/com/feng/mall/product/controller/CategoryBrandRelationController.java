@@ -3,6 +3,7 @@ package com.feng.mall.product.controller;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,14 +14,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.feng.mall.product.entity.BrandEntity;
 import com.feng.mall.product.entity.CategoryBrandRelationEntity;
 import com.feng.mall.product.service.CategoryBrandRelationService;
+import com.feng.mall.product.vo.BrandVo;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.feng.common.utils.PageUtils;
 import com.feng.common.utils.R;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.PostMapping;
-
 
 /**
  * brand category relation
@@ -54,7 +54,21 @@ public class CategoryBrandRelationController {
 
         return R.ok().put("data", data);
     }
-    
+
+    @GetMapping("/brands/list")
+    public R relationBrandsList(@RequestParam(value = "catId", required = true) Long catId) {
+
+        List<BrandEntity> brandEntities = categoryBrandRelationService.getBrandsByCatId(catId);
+        List<BrandVo> brandVos = brandEntities.stream().map(item -> {
+            BrandVo brandVo = new BrandVo();
+            brandVo.setBrandId(item.getBrandId());
+            brandVo.setBrandName(item.getName());
+
+            return brandVo;
+        }).collect(Collectors.toList());
+
+        return R.ok().put("data", brandVos);
+    }
 
     /**
      * 信息
@@ -73,7 +87,7 @@ public class CategoryBrandRelationController {
     @RequestMapping("/save")
     // @RequiresPermissions("product:categorybrandrelation:save")
     public R save(@RequestBody CategoryBrandRelationEntity categoryBrandRelation) {
-        //categoryBrandRelationService.save(categoryBrandRelation);
+        // categoryBrandRelationService.save(categoryBrandRelation);
         categoryBrandRelationService.saveDetail(categoryBrandRelation);
 
         return R.ok();

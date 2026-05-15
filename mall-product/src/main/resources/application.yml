@@ -13,6 +13,8 @@ spring:
       # config:
       #   server-addr: 127.0.0.1:8848
       #   namespace: 1fe74957-a75b-4c03-baf5-9437ba01c240
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
 
 mybatis-plus:
   mapper-locations: classpath*:/mapper/**/*.xml

@@ -1,6 +1,7 @@
 package com.feng.mall.product.controller;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 //import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -13,12 +14,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.feng.mall.product.entity.AttrEntity;
+import com.feng.mall.product.entity.ProductAttrValueEntity;
 import com.feng.mall.product.service.AttrService;
+import com.feng.mall.product.service.ProductAttrValueService;
 import com.feng.mall.product.vo.AttrResponseVo;
 import com.feng.mall.product.vo.AttrVo;
 import com.alibaba.nacos.shaded.io.grpc.EquivalentAddressGroup.Attr;
 import com.feng.common.utils.PageUtils;
 import com.feng.common.utils.R;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  * product attribute
@@ -33,6 +37,9 @@ public class AttrController {
     @Autowired
     private AttrService attrService;
 
+    @Autowired
+    ProductAttrValueService productAttrValueService;
+
     /**
      * 列表
      */
@@ -42,6 +49,14 @@ public class AttrController {
         PageUtils page = attrService.queryPage(params);
 
         return R.ok().put("page", page);
+    }
+
+    @GetMapping("/base/listforspu/{spuId}")
+    public R baseAttrList(@PathVariable Long spuId) {
+
+        List<ProductAttrValueEntity> entities = productAttrValueService.baseAttrListforspu(spuId);
+
+        return R.ok().put("data", entities);
     }
 
     @GetMapping("/{attrType}/list/{catelogId}")
@@ -84,6 +99,15 @@ public class AttrController {
     // @RequiresPermissions("product:attr:update")
     public R update(@RequestBody AttrVo attrVo) {
         attrService.updateAttr(attrVo);
+
+        return R.ok();
+    }
+
+    @PostMapping("/update/{spuId}")
+    public R updateSpuAttr(@PathVariable("spuId") Long spuId,
+            @RequestBody List<ProductAttrValueEntity> entities) {
+
+        productAttrValueService.updateSpuAttr(spuId, entities);
 
         return R.ok();
     }
