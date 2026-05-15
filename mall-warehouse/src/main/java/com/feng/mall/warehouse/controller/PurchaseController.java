@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import jakarta.validation.Valid;
 import com.feng.mall.warehouse.Vo.MergeVo;
+import com.feng.mall.warehouse.Vo.PurchaseDoneVo;
 import com.feng.mall.warehouse.entity.PurchaseEntity;
 import com.feng.mall.warehouse.service.PurchaseService;
 import com.feng.common.utils.PageUtils;
@@ -55,6 +57,14 @@ public class PurchaseController {
     public R postMethodName(@RequestBody MergeVo mergeVo) {
 
         purchaseService.mergePurchase(mergeVo);
+        return R.ok();
+    }
+
+    @PostMapping("/done")
+    public R finish(@Valid @RequestBody PurchaseDoneVo vo) {
+
+        purchaseService.done(vo);
+
         return R.ok();
     }
 

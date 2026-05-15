@@ -1,6 +1,7 @@
 package com.feng.mall.product.service.impl;
 
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,19 @@ public class ProductAttrValueServiceImpl extends ServiceImpl<ProductAttrValueDao
     @Override
     public void saveProductAttrValue(List<ProductAttrValueEntity> collection) {
         this.saveBatch(collection);
+    }
+
+    @Override
+    public List<ProductAttrValueEntity> baseAttrListforspu(Long spuId) {
+        return this.list(new QueryWrapper<ProductAttrValueEntity>().eq("spu_id", spuId));
+    }
+
+    @Override
+    @Transactional
+    public void updateSpuAttr(Long spuId, List<ProductAttrValueEntity> entities) {
+        this.remove(new QueryWrapper<ProductAttrValueEntity>().eq("spu_id", spuId));
+        entities.forEach(e -> e.setSpuId(spuId));
+        this.saveBatch(entities);
     }
 
 }
