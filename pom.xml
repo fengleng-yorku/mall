@@ -45,10 +45,10 @@
 		<module>mall-product</module>
 		<module>mall-warehouse</module>
 		<module>renren-fast</module>
-		<module>renren-fast-vue</module>
 		<module>renren-generator</module>
 		<module>mall-gateway</module>
 		<module>mall-third-party</module>
+		<module>mall-search</module>
 	</modules>
 
 

@@ -16,6 +16,7 @@ import com.feng.mall.product.service.SpuInfoService;
 import com.feng.mall.product.vo.SpuSaveVo;
 import com.feng.common.utils.PageUtils;
 import com.feng.common.utils.R;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  * spu info
@@ -41,7 +42,13 @@ public class SpuInfoController {
         return R.ok().put("page", page);
     }
 
-    
+    @PostMapping("/{spuId}/up")
+    public R postMethodName(@PathVariable Long spuId) {
+
+        spuInfoService.up(spuId);
+        return R.ok();
+        
+    }
 
     /**
      * 信息
