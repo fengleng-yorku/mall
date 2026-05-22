@@ -62,4 +62,6 @@ public interface AttrService extends IService<AttrEntity> {
      * not just the current group, to prevent duplicate cross-group assignments.
      */
     PageUtils getNonRelationAttr(Map<String, Object> params, Long attrGroupId);
+
+    List<Long> selectSearchAttrs(List<Long> attrIds);
 }

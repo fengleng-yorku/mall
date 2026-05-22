@@ -23,7 +23,8 @@
       "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/wareordertaskdetail\"\\)|@RequestMapping\\(\"ware/wareordertaskdetail\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/WareOrderTaskDetailController.java)",
       "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/wareordertask\"\\)|@RequestMapping\\(\"ware/wareordertask\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/WareOrderTaskController.java)",
       "Bash(sed -i '' 's|@RequestMapping\\(\"warehouse/waresku\"\\)|@RequestMapping\\(\"ware/waresku\"\\)|' /Users/rei/Desktop/work/mall/mall-warehouse/src/main/java/com/feng/mall/warehouse/controller/WareSkuController.java)",
-      "Bash(mysql -u mall_user -pStrongPassword123! mall_wms -e ' *)"
+      "Bash(mysql -u mall_user -pStrongPassword123! mall_wms -e ' *)",
+      "Bash(mvn clean *)"
     ],
     "additionalDirectories": [
       "/Users/rei/Desktop/work/mall/mall-third-party/src/main/java/com/feng/mall/thirdparty/Config"

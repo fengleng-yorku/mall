@@ -6,9 +6,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import com.feng.common.constant.ProductConstant;
+import com.feng.common.to.SkuHasStockTo;
 
 import com.alibaba.cloud.commons.lang.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -16,11 +21,14 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.common.to.SkuReductionTo;
 import com.feng.common.to.SpuBoundTo;
+import com.feng.common.to.es.SkuEsModel;
 import com.feng.common.utils.PageUtils;
 import com.feng.common.utils.Query;
 import com.feng.common.utils.R;
 
 import com.feng.mall.product.dao.SpuInfoDao;
+import com.feng.mall.product.entity.BrandEntity;
+import com.feng.mall.product.entity.CategoryEntity;
 import com.feng.mall.product.entity.ProductAttrValueEntity;
 import com.feng.mall.product.entity.SkuImagesEntity;
 import com.feng.mall.product.entity.SkuInfoEntity;
@@ -28,7 +36,11 @@ import com.feng.mall.product.entity.SkuSaleAttrValueEntity;
 import com.feng.mall.product.entity.SpuInfoDescEntity;
 import com.feng.mall.product.entity.SpuInfoEntity;
 import com.feng.mall.product.feign.CouponFeignService;
+import com.feng.mall.product.feign.SearchFeignService;
+import com.feng.mall.product.feign.WareFeignService;
 import com.feng.mall.product.service.AttrService;
+import com.feng.mall.product.service.BrandService;
+import com.feng.mall.product.service.CategoryService;
 import com.feng.mall.product.service.ProductAttrValueService;
 import com.feng.mall.product.service.SkuImagesService;
 import com.feng.mall.product.service.SkuInfoService;
@@ -69,6 +81,18 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Autowired
     CouponFeignService couponFeignService;
+
+    @Autowired
+    BrandService brandService;
+
+    @Autowired
+    CategoryService categoryService;
+
+    @Autowired
+    WareFeignService wareFeignService;
+
+    @Autowired
+    SearchFeignService searchFeighService;
 
     @Override
     public PageUtils queryPage(Map<String, Object> params) {
@@ -230,8 +254,67 @@ public class SpuInfoServiceImpl extends ServiceImpl<SpuInfoDao, SpuInfoEntity> i
 
     @Override
     public void up(Long spuId) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'up'");
+
+        List<SkuInfoEntity> skus = skuService.getSkusBySpuId(spuId);
+        List<Long> skuIdList = skus.stream().map(SkuInfoEntity::getSkuId).collect(Collectors.toList());
+
+        List<ProductAttrValueEntity> baseAttrs = valueService.baseAttrListforspu(spuId);
+
+        List<Long> attrIds = baseAttrs.stream().map(attr -> {
+            return attr.getAttrId();
+        }).collect(Collectors.toList());
+
+        List<Long> searchAttrId = attrService.selectSearchAttrs(attrIds);
+
+        Set<Long> idSet = new HashSet<>(searchAttrId);
+
+        List<SkuEsModel.Attrs> attrsList = baseAttrs.stream().filter(baseAttr -> {
+            return idSet.contains(baseAttr.getAttrId());
+        }).map(baseAttr -> {
+            SkuEsModel.Attrs attrs1 = new SkuEsModel.Attrs();
+            BeanUtils.copyProperties(baseAttr, attrs1);
+            return attrs1;
+        }).collect(Collectors.toList());
+
+        Map<Long, Boolean> stockMap = null;
+        try {
+            R<List<SkuHasStockTo>> skuhasStock = wareFeignService.getSkusHasStock(skuIdList);
+            stockMap = skuhasStock.getData().stream()
+                    .collect(Collectors.toMap(SkuHasStockTo::getSkuId, item -> item.getHasStock()));
+        } catch (Exception e) {
+            log.error("Failed to get sku stock info", e);
+        }
+
+        final Map<Long, Boolean> finalStockMap = stockMap;
+        List<SkuEsModel> collection = skus.stream().map(sku -> {
+            SkuEsModel esModel = new SkuEsModel();
+
+            BeanUtils.copyProperties(sku, esModel);
+            esModel.setSkuPrice(sku.getPrice());
+            esModel.setSkuImg(sku.getSkuDefaultImg());
+
+            esModel.setHotScore(0L);
+            esModel.setHasStock(finalStockMap != null && finalStockMap.getOrDefault(sku.getSkuId(), false));
+
+            BrandEntity brand = brandService.getById(esModel.getBrandId());
+            esModel.setBrandName(brand.getName());
+            esModel.setBrandImg(brand.getLogo());
+
+            CategoryEntity category = categoryService.getById(esModel.getCatalogId());
+            esModel.setCatalogName(category.getName());
+
+            esModel.setAttrs(attrsList);
+
+            return esModel;
+        }).collect(Collectors.toList());
+
+        R r = searchFeighService.productStatusUp(collection);
+        if (r.getCode() == 0) {
+            this.baseMapper.updateSpuStatus(spuId, ProductConstant.ProductStatusEnum.SPU_UP.getCode());
+        } else {
+            log.warn("productStatusUp failed, spuId: " + spuId + ", code: " + r.getCode());
+        }
+
     }
 
 }

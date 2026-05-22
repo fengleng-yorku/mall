@@ -149,7 +149,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         BeanUtils.copyProperties(attrVo, attrEntity);
         this.updateById(attrEntity);
 
-        // Only base-type attrs maintain a group relation; sale-type attrs skip this block
+        // Only base-type attrs maintain a group relation; sale-type attrs skip this
+        // block
         if (attrEntity.getAttrType() == ProductConstant.AttrEnum.ATTR_TYPE_BASE.getCode()) {
             AttrAttrgroupRelationEntity relationEntity = new AttrAttrgroupRelationEntity();
             relationEntity.setAttrGroupId(attrVo.getAttrGroupId());
@@ -172,7 +173,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
                 .selectList(new QueryWrapper<AttrAttrgroupRelationEntity>().eq("attr_group_id", attrGroupId));
         List<Long> attrIds = relationEntities.stream().map(AttrAttrgroupRelationEntity::getAttrId)
                 .collect(Collectors.toList());
-        // Return null early so the controller can distinguish "no relations" from an empty list
+        // Return null early so the controller can distinguish "no relations" from an
+        // empty list
         if (attrIds == null || attrIds.size() == 0) {
             return null;
         }
@@ -196,7 +198,8 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
             BeanUtils.copyProperties(item, relationEntity);
             return relationEntity;
         }).collect(Collectors.toList());
-        // Custom mapper method deletes by (attr_id, attr_group_id) pairs in one batch SQL
+        // Custom mapper method deletes by (attr_id, attr_group_id) pairs in one batch
+        // SQL
         attrAttrgroupRelationDao.deleteBatchRelation(relationEntities);
     }
 
@@ -230,5 +233,11 @@ public class AttrServiceImpl extends ServiceImpl<AttrDao, AttrEntity> implements
         }
 
         return new PageUtils(this.page(new Query<AttrEntity>().getPage(params), wrapper));
+    }
+
+    @Override
+    public List<Long> selectSearchAttrs(List<Long> attrIds) {
+
+        return baseMapper.selectSearchAttrIds(attrIds);
     }
 }

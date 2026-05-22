@@ -4,8 +4,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.alibaba.cloud.commons.lang.StringUtils;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -15,6 +17,8 @@ import com.feng.common.utils.PageUtils;
 import com.feng.common.utils.Query;
 import com.feng.common.utils.R;
 import com.feng.mall.warehouse.Feign.ProductFeignService;
+import com.feng.mall.warehouse.Vo.SkuHasStockVo;
+
 import lombok.extern.slf4j.Slf4j;
 import com.feng.mall.warehouse.dao.WareSkuDao;
 import com.feng.mall.warehouse.entity.WareSkuEntity;
@@ -78,6 +82,20 @@ public class WareSkuServiceImpl extends ServiceImpl<WareSkuDao, WareSkuEntity> i
 
             wareSkuDao.addStock(skuId, wareId, skuNum);
         }
+    }
+
+    @Override
+    public List<SkuHasStockVo> getSkusHasStock(List<Long> skuIds) {
+        List<SkuHasStockVo> collection = skuIds.stream().map(id -> {
+            SkuHasStockVo vo = new SkuHasStockVo();
+
+            Long count = baseMapper.getSkuStock(skuIds);
+            vo.setSkuId(id);
+            vo.setHasStock(count > 0);
+            return vo;
+        }).collect(Collectors.toList());
+
+        return collection;
     }
 
 }
